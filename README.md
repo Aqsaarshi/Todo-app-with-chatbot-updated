@@ -1,97 +1,193 @@
-# Todo CLI Application
+# Todo Full-Stack Web Application
 
-A simple command-line interface application for managing todo tasks in memory.
+A full-featured todo application with user authentication, task management, and responsive UI built with Next.js, FastAPI, and PostgreSQL.
 
 ## Features
 
-- Add new tasks with titles and optional descriptions
-- View all tasks with their status indicators
-- Update task titles and descriptions
-- Delete tasks
-- Mark tasks as complete or incomplete
+- User authentication with JWT tokens
+- Create, read, update, and delete tasks
+- Task filtering and sorting
+- User data isolation
+- Responsive design
+- Secure API endpoints
 
-## Requirements
+## Tech Stack
 
-- Python 3.13+
+- **Frontend**: Next.js 16+, TypeScript, Tailwind CSS
+- **Backend**: FastAPI, Python 3.11+
+- **Database**: PostgreSQL with SQLModel ORM
+- **Authentication**: JWT-based with custom implementation
+- **Deployment**: Docker and docker-compose
 
-## Installation
+## Prerequisites
 
-1. Clone or download this repository
-2. Navigate to the project directory
-3. The application is ready to use (no additional installation required)
+- Node.js 18+
+- Python 3.11+
+- PostgreSQL (or access to Neon PostgreSQL)
+- Docker and Docker Compose (for containerized setup)
+- Git for version control
 
-## Usage
+## Getting Started
 
-### Interactive Mode (Recommended)
-Run the application in interactive mode where tasks persist in memory during the session:
+### Backend Setup
+
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your database credentials and auth settings
+```
+
+5. Run database migrations:
+```bash
+alembic upgrade head
+```
+
+6. Start the backend server:
+```bash
+uvicorn src.main:app --reload --port 8000
+```
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.local.example .env.local
+# Edit .env.local with your API endpoints and auth settings
+```
+
+4. Start the frontend development server:
+```bash
+npm run dev
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+
+### Task Management
+- `GET /api/{user_id}/tasks` - Get user's tasks
+- `POST /api/{user_id}/tasks` - Create new task
+- `GET /api/{user_id}/tasks/{id}` - Get specific task
+- `PUT /api/{user_id}/tasks/{id}` - Update task
+- `DELETE /api/{user_id}/tasks/{id}` - Delete task
+- `PATCH /api/{user_id}/tasks/{id}/complete` - Toggle task completion
+
+## Environment Variables
+
+### Frontend
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_AUTH_COOKIE_NAME=auth_token
+```
+
+### Backend
+```
+DATABASE_URL=postgresql://localhost:5432/todo_app
+SECRET_KEY=your_jwt_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+## Running with Docker
+
+To run the application using Docker Compose:
 
 ```bash
-python src/cli/main.py
+docker-compose up --build
 ```
-
-Then use commands within the interactive session:
-- `add "Task Title" "Optional Description"` - Add a new task
-- `view` - View all tasks
-- `update [task_id] --title "New Title" --description "New Description"` - Update a task
-- `delete [task_id]` - Delete a task
-- `mark-complete [task_id]` - Mark task as complete
-- `mark-incomplete [task_id]` - Mark task as incomplete
-- `help` - Show available commands
-- `quit` or `exit` - Exit the application
-
-### Standalone Mode (Original)
-Run individual commands (tasks will not persist between executions):
-
-```bash
-python src/cli/main.py add "Task Title" "Optional Description"
-python src/cli/main.py view
-python src/cli/main.py update [task_id] --title "New Title" --description "New Description"
-python src/cli/main.py delete [task_id]
-python src/cli/main.py mark-complete [task_id]
-python src/cli/main.py mark-incomplete [task_id]
-```
-
-## Example Usage (Interactive Mode)
-
-```
-python src/cli/main.py
-todo> add "Buy groceries" "Milk, eggs, bread"
-Task added successfully with ID: 1
-todo> view
-Your Todo List:
-[O] 1. Buy groceries
-      Description: Milk, eggs, bread
-
-todo> update 1 --title "Buy groceries and cook dinner"
-Task 1 updated successfully
-todo> mark-complete 1
-Task 1 marked as complete
-todo> view
-Your Todo List:
-[X] 1. Buy groceries and cook dinner
-      Description: Milk, eggs, bread
-
-todo> quit
-Goodbye!
-```
-
-## Architecture
-
-The application follows a modular design with clear separation of concerns:
-
-- `src/models/task.py`: Defines the Task entity
-- `src/services/todo_service.py`: Contains business logic for todo operations
-- `src/cli/main.py`: Implements the command-line interface
-- `src/lib/utils.py`: Contains utility functions
 
 ## Testing
 
-To run the tests:
+### Backend Tests
 ```bash
-pip install pytest
-pytest tests/
+cd backend
+python -m pytest tests/
 ```
+
+## Deployment
+
+### Building for Production
+```bash
+# Frontend build
+cd frontend
+npm run build
+
+# Backend deployment
+cd backend
+# Deploy using your preferred platform (Heroku, AWS, etc.)
+```
+
+## Security Features
+
+- JWT token validation on all protected endpoints
+- User ownership validation for all data access
+- Input validation and sanitization
+- Rate limiting for API endpoints (not implemented in this version)
+- Data isolation between users
+
+## Architecture
+
+The application follows a monorepo structure with separate frontend and backend applications:
+
+```
+hackathon-todo/
+├── frontend/
+│   ├── src/
+│   │   ├── app/              # Next.js App Router pages
+│   │   ├── components/       # Reusable UI components
+│   │   ├── lib/              # Utilities and services
+│   │   ├── types/            # TypeScript type definitions
+│   │   └── styles/           # Global styles
+│   └── ...
+├── backend/
+│   ├── src/
+│   │   ├── models/           # SQLModel database models
+│   │   ├── services/         # Business logic
+│   │   ├── api/              # API routes/endpoints
+│   │   ├── auth/             # Authentication logic
+│   │   └── database/         # Database connection and setup
+│   └── ...
+└── ...
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-[Specify your license here]# The-Evolution-of-Todo-app
+[Specify your license here]
+# Todo-Full-Stack-Web-Application
