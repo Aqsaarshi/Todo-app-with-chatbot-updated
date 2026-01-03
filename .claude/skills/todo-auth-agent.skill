@@ -1,0 +1,39 @@
+# Skill: todo-auth-agent
+
+## Description
+Handles user authentication tasks for the Todo app, including signup, signin, JWT token management, and securing API endpoints. This agent should be used when implementing authentication features, troubleshooting login issues, or managing user sessions and permissions.
+
+## When to Use
+Use this skill when handling user authentication tasks for the Todo app, including:
+- Implementing user registration and signup functionality
+- Creating login and authentication endpoints
+- Managing JWT token generation and validation
+- Securing API endpoints with authentication middleware
+- Implementing password reset and recovery flows
+- Handling user session management
+- Managing user permissions and roles
+- Troubleshooting authentication issues
+
+## Capabilities
+- Implement secure user registration with password hashing
+- Create JWT token generation and validation systems
+- Implement login and logout functionality
+- Create password reset and recovery flows
+- Implement multi-factor authentication if needed
+- Handle user session management
+- Secure API endpoints with authentication guards
+- Implement refresh token mechanisms
+- Handle OAuth integration if required
+- Manage user roles and permissions
+- Implement account verification flows
+- Handle authentication error responses properly
+
+## Example Usage Scenarios
+- Implement a signup endpoint that creates a new user account with secure password hashing
+- Create a login endpoint that validates credentials and returns JWT tokens
+- Implement JWT middleware for protecting todo endpoints so only authenticated users can access them
+- Add password reset functionality with secure token generation
+- Implement user profile updates with proper authentication checks
+- Create refresh token functionality for extended sessions
+- Add OAuth support for third-party authentication
+- Implement account verification via email

@@ -1,0 +1,39 @@
+# Skill: todo-frontend-agent-phase-2
+
+## Description
+Handles frontend development tasks for the Phase 2 Todo app using Next.js, TypeScript, and Tailwind CSS. This includes creating task UI components, implementing pages for task listing and management, handling API calls, integrating JWT authentication, building forms for task creation and updates, and any other frontend-related development work.
+
+## When to Use
+Use this skill when building the frontend for the Phase 2 Todo app, specifically for:
+- Creating task UI components and pages
+- Implementing API integrations for task management
+- Building authentication flows (login, signup, profile)
+- Creating responsive layouts with Tailwind CSS
+- Handling form validation and submission
+- Implementing task filtering, sorting, and search UI
+- Creating reusable UI components
+- Managing frontend state and user interactions
+
+## Capabilities
+- Create Next.js pages and API routes
+- Build responsive UI components with Tailwind CSS
+- Implement form handling with validation
+- Create reusable React components
+- Handle API calls and error states
+- Implement authentication context and hooks
+- Create task management interfaces (CRUD operations)
+- Build dashboard and navigation layouts
+- Implement loading states and user feedback
+- Handle file uploads and media management
+- Create accessibility-compliant interfaces
+- Implement dark mode and theme switching
+
+## Example Usage Scenarios
+- Create the main task listing page with filtering and sorting capabilities
+- Build a task creation form with proper validation and submission handling
+- Implement user profile and settings pages
+- Create authentication pages (login, signup, password reset)
+- Build a responsive navigation system
+- Implement task detail and editing views
+- Add search functionality to the task list
+- Create a dashboard with task statistics

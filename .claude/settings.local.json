@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest backend/tests/ -v)",
+      "Bash(pip install aiosqlite)",
+      "Bash(powershell \"Move-Item -Path ''frontend\\\\src\\\\app\\\\tasks'' -Destination ''frontend\\\\src\\\\app\\\\\\(protected\\)\\\\tasks''\")",
+      "Bash(python -m uvicorn src.main:app --host 0.0.0.0 --port 8000)",
+      "Bash(powershell \"Stop-Process -Id 17896 -Force\")",
+      "Bash(powershell \"Get-Content ''C:\\\\Users\\\\A7101~1.ZEE\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--hackathon-2TODO\\\\tasks\\\\bedcd78.output''\")",
+      "Bash(python test_integration.py)",
+      "Bash(timeout 5)",
+      "Bash(powershell \"Get-Content ''C:\\\\Users\\\\A7101~1.ZEE\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--hackathon-2TODO\\\\tasks\\\\b5f5f31.output''\")",
+      "Bash(curl -s -X POST \"http://localhost:8000/api/auth/login\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test2@example.com\"\", \"\"password\"\":\"\"password123\"\"}')",
+      "Bash(python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload)",
+      "Bash(dir \"backend\\\\src\")",
+      "Bash(powershell \"cd backend; python -m uvicorn src.main:app --host 127.0.0.1 --port 8000 --reload\")",
+      "Bash(dir \"frontend\\\\src\\\\lib\\\\api\")",
+      "Bash(powershell \"Remove-Item -Recurse -Force -Path ''.next'' -ErrorAction SilentlyContinue\")",
+      "Bash(npm run dev)",
+      "Bash(powershell \"Get-Content ''C:\\\\Users\\\\A7101~1.ZEE\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--hackathon-2TODO\\\\tasks\\\\ba719eb.output''\")",
+      "Bash(powershell \"Get-ChildItem -Path frontend\\\\src\\\\components -Recurse\")"
+    ]
+  }
+}

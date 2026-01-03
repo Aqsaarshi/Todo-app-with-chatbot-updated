@@ -1,40 +1,40 @@
-<!-- SYNC IMPACT REPORT
-Version change: N/A -> 1.0.0
-Modified principles: N/A (new constitution)
-Added sections: All principles and sections for Todo In-Memory CLI Application
-Removed sections: N/A
-Templates requiring updates: ✅ no changes needed - .specify/templates/plan-template.md, .specify/templates/spec-template.md, .specify/templates/tasks-template.md
-Follow-up TODOs: RATIFICATION_DATE needs to be set to actual ratification date
+<!--
+Sync Impact Report:
+- Version change: N/A → 1.0.0
+- Added principles: Spec-Driven Development Compliance, Monorepo Organization, Secure Authentication & Data Isolation, API Contract Compliance, Full-Stack Coordination, Database Management with SQLModel and Neon PostgreSQL
+- Added sections: Technology Stack and Architecture Standards, Development Workflow and Quality Standards
+- Templates requiring updates: N/A (new constitution)
+- Follow-up TODOs: None
 -->
-# Todo In-Memory CLI Application Constitution
+# Todo Phase II Constitution
 
 ## Core Principles
 
-### Modular Design
-Code must be organized in a modular fashion with clear separation of concerns; Each module should have a single responsibility; Functions and classes should be reusable and independently testable
+### Spec-Driven Development Compliance
+Follow Spec-Kit Plus specifications for features, APIs, database, and UI; All implementations must align with documented specs
 
-### CLI-First Interface
-All functionality must be accessible through a command-line interface; CLI should accept commands and arguments for all core features; User interactions follow a clear command structure (add, view, update, delete, mark)
+### Monorepo Organization
+Maintain proper monorepo structure with frontend, backend, specs, and configuration files organized in dedicated directories
 
-### Spec-Driven Development
-Specifications must be written before implementation; All features must have clear, testable requirements documented in spec files; Implementation follows specifications exactly with no deviations without spec updates
+### Secure Authentication & Data Isolation
+Implement JWT authentication for frontend-backend communication; Enforce user data isolation on all API endpoints
 
-### In-Memory Storage
-Task data is stored in memory during application runtime; No persistent storage outside of memory; Data persistence is not required for this implementation
+### API Contract Compliance
+Follow established API conventions for task CRUD operations with user_id scoping; Maintain consistent endpoint patterns
 
-### CRUD Operations Completeness
-All core CRUD operations (Create, Read, Update, Delete) must be fully implemented; Each operation must handle appropriate error cases; Task completion/incompletion must be properly tracked
+### Full-Stack Coordination
+Coordinate between frontend (Next.js 16+ App Router) and backend (FastAPI) layers; Implement proper integration patterns
 
-### Clean Code Standards
-Code must follow Python PEP 8 standards; Proper documentation with docstrings required; Code should be readable and maintainable with meaningful variable and function names
+### Database Management with SQLModel and Neon PostgreSQL
+Manage database design, migrations, and queries using SQLModel and Neon PostgreSQL; Follow proper schema evolution practices
 
-## Development Requirements
-Python 3.13+ required; Project structure must follow /src for source code and /specs_history for specification files; All code must be documented with usage instructions in README.md
+## Technology Stack and Architecture Standards
+Use Next.js, TypeScript, and Tailwind CSS for frontend UI components; Use FastAPI for backend; Implement Better Auth for session management; Apply clean code principles for both frontend and backend
 
-## Quality Assurance
-All features must be tested before implementation completion; Code review required before merging; Specifications must be updated when functionality changes
+## Development Workflow and Quality Standards
+Maintain coding standards and clean code principles; Use CLAUDE.md files to provide context at root, frontend, and backend levels; Update specs if requirements change and reference them correctly; Test and iterate on features, API endpoints, and database queries
 
 ## Governance
-All development must follow the defined principles; Changes to this constitution require explicit approval; All code must comply with the established project structure and development workflow
+Reference this constitution whenever implementing or reviewing any Phase II feature, backend or frontend logic, database schema, authentication flow, or integration task; Ensure all agents and skills follow the same architecture, security standards, and project workflow
 
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): to be set to actual ratification date | **Last Amended**: 2025-12-26
+**Version**: 1.0.0 | **Ratified**: 2025-12-27 | **Last Amended**: 2025-12-27

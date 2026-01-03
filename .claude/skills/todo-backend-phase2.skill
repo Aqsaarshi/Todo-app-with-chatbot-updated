@@ -1,0 +1,34 @@
+# Skill: todo-backend-phase2
+
+## Description
+Handles backend development tasks for the Todo app Phase 2, specifically for creating REST API endpoints, handling JWT verification, implementing business logic for task management, and ensuring user-specific data handling.
+
+## When to Use
+Use this skill when implementing backend features for Phase 2 of the Todo app, specifically for:
+- Creating task endpoints (GET, POST, PUT, DELETE)
+- Implementing JWT verification middleware
+- Handling user authentication and authorization
+- Implementing business logic for task management
+- Managing user permissions and data isolation
+- Creating API response formatting
+- Error handling for backend operations
+
+## Capabilities
+- Create FastAPI endpoints with proper request/response models
+- Implement JWT token verification and authentication middleware
+- Create database service layers for task operations
+- Handle user-specific data isolation
+- Implement proper error responses and HTTP status codes
+- Create API documentation with OpenAPI/Swagger
+- Implement pagination and filtering for task lists
+- Handle request validation with Pydantic models
+- Implement rate limiting and security measures
+- Create proper logging and monitoring endpoints
+
+## Example Usage Scenarios
+- Creating a new task endpoint that validates JWT and associates tasks with the authenticated user
+- Implementing authentication middleware to protect all task-related endpoints
+- Creating update functionality that ensures users can only modify their own tasks
+- Implementing task deletion with proper authorization checks
+- Creating task listing endpoints with filtering and pagination
+- Adding search functionality to find tasks by title or description

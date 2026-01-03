@@ -1,0 +1,39 @@
+# Skill: todo-db-agent-phase2
+
+## Description
+Handles database-related tasks for Phase 2 of the Todo app, including creating SQLModel database models, setting up Neon PostgreSQL connection, performing database migrations, writing database queries for tasks and users, ensuring data integrity and proper relationships between models, implementing database-specific features for the todo application, and troubleshooting database-related issues in Phase 2.
+
+## When to Use
+Use this skill when working with database models, SQLModel schemas, Neon PostgreSQL integration, database setup, schema updates, data migrations, and queries for Phase 2 tasks, specifically for:
+- Creating or updating SQLModel database models
+- Setting up Neon PostgreSQL connection
+- Performing database migrations
+- Writing database queries for tasks and users
+- Ensuring data integrity and proper relationships
+- Implementing database-specific features
+- Optimizing database performance
+- Troubleshooting database-related issues
+
+## Capabilities
+- Create SQLModel database models with proper relationships
+- Define database schemas with appropriate constraints
+- Implement database migrations and versioning
+- Write efficient database queries with proper indexing
+- Handle data validation at the database level
+- Set up connection pooling and database configuration
+- Implement data seeding and test data creation
+- Handle database backup and restore procedures
+- Optimize query performance and indexing
+- Implement database transaction management
+- Create stored procedures and functions if needed
+- Handle database security and access controls
+
+## Example Usage Scenarios
+- Create the SQLModel database models for users and tasks with proper relationships
+- Set up the Neon PostgreSQL database connection with proper configuration
+- Implement database migrations for schema changes
+- Write optimized queries for task retrieval with filtering and pagination
+- Create database indexes for improved performance
+- Implement data validation constraints at the database level
+- Handle database seeding with initial data
+- Create database views for complex reporting needs

@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+.python-version
+
+# Next.js
+.next/
+out/
+build/
+dist/
+.nyc_output
+coverage/
+
+# FastAPI
+*.log
+*.sqlite
+*.db
+*.db-journal
+.env
+.env.local
+.env.dev
+.env.test
+.env.production
+.env.staging
+.env.local.example
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
