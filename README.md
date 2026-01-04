@@ -105,7 +105,7 @@ npm run dev
 
 ### Frontend
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=https://aqsaarshi-todo-app-backend.hf.space
 NEXT_PUBLIC_AUTH_COOKIE_NAME=auth_token
 ```
 

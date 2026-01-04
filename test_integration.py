@@ -10,7 +10,7 @@ def test_full_integration():
     print("Testing Full Stack Todo Application Integration...")
     print("="*60)
 
-    BASE_URL = "http://localhost:8000"
+    BASE_URL = "https://aqsaarshi-todo-app-backend.hf.space"
 
     # Test 1: Health check
     print("1. Testing backend health...")

@@ -10,7 +10,7 @@
       "Bash(python test_integration.py)",
       "Bash(timeout 5)",
       "Bash(powershell \"Get-Content ''C:\\\\Users\\\\A7101~1.ZEE\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--hackathon-2TODO\\\\tasks\\\\b5f5f31.output''\")",
-      "Bash(curl -s -X POST \"http://localhost:8000/api/auth/login\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test2@example.com\"\", \"\"password\"\":\"\"password123\"\"}')",
+      "Bash(curl -s -X POST \"https://aqsaarshi-todo-app-backend.hf.space/api/auth/login\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test2@example.com\"\", \"\"password\"\":\"\"password123\"\"}')",
       "Bash(python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload)",
       "Bash(dir \"backend\\\\src\")",
       "Bash(powershell \"cd backend; python -m uvicorn src.main:app --host 127.0.0.1 --port 8000 --reload\")",

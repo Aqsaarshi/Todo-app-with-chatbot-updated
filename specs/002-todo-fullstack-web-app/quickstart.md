@@ -120,7 +120,7 @@ docker-compose up --build
 
 ### Frontend Environment Variables
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=https://aqsaarshi-todo-app-backend.hf.space
 NEXT_PUBLIC_AUTH_COOKIE_NAME=auth_token
 ```
 
@@ -173,7 +173,7 @@ cd backend
 ### Useful Commands
 ```bash
 # Check if backend is running
-curl http://localhost:8000/health
+curl https://aqsaarshi-todo-app-backend.hf.space/health
 
 # Check frontend build
 cd frontend && npm run build && npm start

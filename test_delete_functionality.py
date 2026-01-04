@@ -9,7 +9,7 @@ from datetime import datetime
 
 async def test_delete_functionality():
     # Backend URL
-    base_url = "http://localhost:8000"
+    base_url = "https://aqsaarshi-todo-app-backend.hf.space"
 
     # Test user credentials
     test_user = {
