@@ -56,7 +56,7 @@ const NewChatInterface: React.FC<NewChatInterfaceProps> = ({ userId, isOpen, onC
     if (!currentConversationId) return;
 
     try {
-      const response: MessagesResponse = await apiClient.getConversationMessages(userId, currentConversationId);
+      const response: MessagesResponse = await apiClient.getConversationMessages(userId, currentConversationId.toString());
       setMessages(response.messages);
     } catch (error) {
       console.error('Error loading conversation history:', error);
@@ -97,7 +97,7 @@ const NewChatInterface: React.FC<NewChatInterfaceProps> = ({ userId, isOpen, onC
 
     try {
       // Send message to API
-      const response: ChatResponse = await apiClient.sendMessage(userId, inputValue, currentConversationId || undefined);
+      const response: ChatResponse = await apiClient.sendMessage(userId, inputValue, currentConversationId ? currentConversationId.toString() : undefined);
 
       // Update conversation ID if this is a new conversation
       if (!currentConversationId) {
