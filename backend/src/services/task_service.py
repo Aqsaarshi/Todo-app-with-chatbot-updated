@@ -1,11 +1,26 @@
 from typing import List, Optional
 from uuid import UUID
 import logging
+from datetime import datetime, timezone
 
 from sqlmodel import select, delete
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..models.task import Task, TaskCreate, TaskUpdate
+
+
+def ensure_timezone_naive_for_db(dt):
+    """Convert datetime to timezone-naive for TIMESTAMP WITHOUT TIME ZONE columns"""
+    if dt is None:
+        return None
+    if dt.tzinfo is not None:
+        # Convert to UTC first, then remove timezone info for database compatibility
+        utc_dt = dt.astimezone(timezone.utc)
+        # Return timezone-naive datetime for TIMESTAMP WITHOUT TIME ZONE columns
+        return datetime(utc_dt.year, utc_dt.month, utc_dt.day,
+                       utc_dt.hour, utc_dt.minute, utc_dt.second, utc_dt.microsecond)
+    # If already timezone-naive, return as-is
+    return dt
 
 
 # =========================
@@ -18,14 +33,31 @@ async def create_task(
 ) -> Task:
     """Create a new task for a user"""
 
+    # Convert task_create data to dict and ensure timezone-aware datetimes
+    task_data = task_create.model_dump()
+
+    # Ensure due_date is timezone-naive for database compatibility if it exists
+    if 'due_date' in task_data and task_data['due_date']:
+        task_data['due_date'] = ensure_timezone_naive_for_db(task_data['due_date'])
+
+    # Create the task instance first, then set the user_id and timestamps
     db_task = Task(
-        **task_create.model_dump(),
+        **{k: v for k, v in task_data.items() if k not in ['created_at', 'updated_at']},
         user_id=user_id
     )
 
+    # Set the timestamps after creating the instance to avoid conflicts with model defaults
+    # Convert to timezone-naive for database compatibility
+    db_task.created_at = ensure_timezone_naive_for_db(datetime.now(timezone.utc))
+    db_task.updated_at = ensure_timezone_naive_for_db(datetime.now(timezone.utc))
+
     session.add(db_task)
-    await session.commit()
-    await session.refresh(db_task)
+    try:
+        await session.commit()
+        await session.refresh(db_task)
+    except Exception as e:
+        await session.rollback()
+        raise e
 
     return db_task
 
@@ -121,12 +153,25 @@ async def update_task(
 
     update_data = task_update.model_dump(exclude_unset=True)
 
+    # Ensure due_date is timezone-naive for database compatibility if it exists in update
+    if 'due_date' in update_data and update_data['due_date']:
+        update_data['due_date'] = ensure_timezone_naive_for_db(update_data['due_date'])
+
+    # Update fields excluding the timestamp fields to avoid conflicts
     for field, value in update_data.items():
-        setattr(task, field, value)
+        if field not in ['created_at', 'updated_at']:
+            setattr(task, field, value)
+
+    # Update updated_at timestamp to reflect the change
+    task.updated_at = ensure_timezone_naive_for_db(datetime.now(timezone.utc))
 
     session.add(task)
-    await session.commit()
-    await session.refresh(task)
+    try:
+        await session.commit()
+        await session.refresh(task)
+    except Exception as e:
+        await session.rollback()
+        raise e
 
     return task
 
@@ -180,8 +225,14 @@ async def toggle_task_completion(
         return None
 
     task.completed = completed
+    # Update updated_at timestamp to reflect the change
+    task.updated_at = ensure_timezone_naive_for_db(datetime.now(timezone.utc))
     session.add(task)
-    await session.commit()
-    await session.refresh(task)
+    try:
+        await session.commit()
+        await session.refresh(task)
+    except Exception as e:
+        await session.rollback()
+        raise e
 
     return task

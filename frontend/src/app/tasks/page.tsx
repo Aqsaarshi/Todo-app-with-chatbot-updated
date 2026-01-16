@@ -6,6 +6,8 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Header from '@/components/Header';
 import TaskFilterBar from '@/components/TaskFilterBar';
 import { tasksAPI } from '@/lib/api/tasks';
+import NewChatBotIcon from '@/components/NewChatBotIcon';
+import NewChatInterface from '@/components/NewChatInterface';
 
 interface Task {
   id: string;
@@ -23,6 +25,7 @@ export default function TasksPage() {
   const { state } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [filters, setFilters] = useState({
     completed: '',
     priority: '',
@@ -31,6 +34,10 @@ export default function TasksPage() {
   });
   const [error, setError] = useState<string | null>(null);
 
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+
   useEffect(() => {
     if (state.token && state.user?.id && state.user.id !== 'undefined') {
       fetchTasks();
@@ -38,7 +45,7 @@ export default function TasksPage() {
   }, [filters, state.token, state.user?.id]);
 
   useEffect(() => {
-    const handleStorageChange = async (e: StorageEvent) => {
+    const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'taskDeleted') fetchTasks();
     };
     window.addEventListener('storage', handleStorageChange);
@@ -54,14 +61,15 @@ export default function TasksPage() {
       const userId = state.user?.id;
       if (!token || !userId) throw new Error('User not authenticated');
 
-      const tasks = await tasksAPI.getTasks(userId, token, {
+      // Use the correct API function from tasksAPI
+      const response = await tasksAPI.getTasks(userId, token, {
         completed: filters.completed || undefined,
         priority: filters.priority || undefined,
         sort: filters.sort,
         order: filters.order,
       });
 
-      setTasks(tasks);
+      setTasks(response);
     } catch (err: any) {
       console.error('Error fetching tasks:', err);
       setError(err.message || 'Failed to load tasks');
@@ -76,7 +84,7 @@ export default function TasksPage() {
       const userId = state.user?.id;
       if (!token || !userId) throw new Error('User not authenticated');
 
-      const updatedTask = await tasksAPI.toggleTaskCompletion(userId, taskId, token, !currentStatus);
+      const updatedTask = await tasksAPI.updateTask(userId, taskId, token, { completed: !currentStatus });
       setTasks(tasks.map(task => task.id === taskId ? updatedTask : task));
     } catch (error: any) {
       console.error('Error updating task:', error);
@@ -143,11 +151,11 @@ export default function TasksPage() {
             priorityFilter={filters.priority}
             sortField={filters.sort}
             sortOrder={filters.order}
-            onCompletedChange={(v) => handleFilterChange('completed', v)}
-            onPriorityChange={(v) => handleFilterChange('priority', v)}
-            onSortFieldChange={(v) => handleFilterChange('sort', v)}
-            onSortOrderChange={(v) => handleFilterChange('order', v)}
-            onClearFilters={handleClearFilters}
+            onCompletedChange={(v) => setFilters(prev => ({ ...prev, completed: v }))}
+            onPriorityChange={(v) => setFilters(prev => ({ ...prev, priority: v }))}
+            onSortFieldChange={(v) => setFilters(prev => ({ ...prev, sort: v }))}
+            onSortOrderChange={(v) => setFilters(prev => ({ ...prev, order: v }))}
+            onClearFilters={() => setFilters({ completed: '', priority: '', sort: 'created_at', order: 'desc' })}
           />
 
           {/* Tasks Grid */}
@@ -201,6 +209,12 @@ export default function TasksPage() {
             </div>
           )}
         </div>
+
+        {/* Chat Interface */}
+        <NewChatInterface userId={state.user?.id || ''} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
+        {/* Chat Bot Icon */}
+        <NewChatBotIcon onClick={toggleChat} />
       </div>
     </ProtectedRoute>
   );

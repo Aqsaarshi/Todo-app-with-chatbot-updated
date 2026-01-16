@@ -1,0 +1,8 @@
+README.md
+setup.cfg
+setup.py
+src/todo_cli_app.egg-info/PKG-INFO
+src/todo_cli_app.egg-info/SOURCES.txt
+src/todo_cli_app.egg-info/dependency_links.txt
+src/todo_cli_app.egg-info/entry_points.txt
+src/todo_cli_app.egg-info/top_level.txt

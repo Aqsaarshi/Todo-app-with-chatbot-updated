@@ -11,7 +11,7 @@ def log_access_attempt(user_id: Optional[str], endpoint: str, success: bool, det
         user_id=user_id,
         details={
             "endpoint": endpoint,
-            "timestamp": str(__import__('datetime').datetime.utcnow()),
+            "timestamp": str(__import__('datetime').datetime.datetime.now(__import__('datetime').timezone.utc)),
             **(details or {})
         }
     )
@@ -26,7 +26,7 @@ def log_authentication_event(user_id: str, event_type: str, success: bool, detai
         event_type=full_event_type,
         user_id=user_id,
         details={
-            "timestamp": str(__import__('datetime').datetime.utcnow()),
+            "timestamp": str(__import__('datetime').datetime.datetime.now(__import__('datetime').timezone.utc)),
             **(details or {})
         }
     )
@@ -41,7 +41,7 @@ def log_data_access_violation(attempting_user_id: str, requested_resource_user_i
             "requested_resource_user_id": requested_resource_user_id,
             "resource_type": resource_type,
             "endpoint": endpoint,
-            "timestamp": str(__import__('datetime').datetime.utcnow())
+            "timestamp": str(__import__('datetime').datetime.datetime.now(__import__('datetime').timezone.utc))
         }
     )
 

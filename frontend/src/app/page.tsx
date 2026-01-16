@@ -1,13 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
-export default function HomePage() {
-  return (
-    
+import NewChatBotIcon from '@/components/NewChatBotIcon';
+import NewChatInterface from '@/components/NewChatInterface';
 
+export default function HomePage() {
+  const { state: authState } = useAuth();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+
+  // Use a default user ID if not authenticated, or show a message
+  const userId = authState.user?.id || 'anonymous';
+
+  return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-       {/* Header */}
+      {/* Header */}
       <Header />
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto text-center">
@@ -62,11 +74,16 @@ export default function HomePage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Fully Responsive</h3>
-              <p className="text-gray-600">Access your tasks from any device, anywhere.</p>
+              <p className="text-gray-600">Access your tasks from any device, anywhere hrdddddddd.</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Chat Interface */}
+      <NewChatInterface userId={authState.user?.id || 'anonymous'} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      {/* Chat Bot Icon */}
+      <NewChatBotIcon onClick={toggleChat} />
     </div>
   );
 }

@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Header from '@/components/Header';
+import NewChatBotIcon from '@/components/NewChatBotIcon';
+import NewChatInterface from '@/components/NewChatInterface';
+import { tasksAPI } from '@/lib/api/tasks';
 
 interface Task {
   id: string;
@@ -21,35 +24,48 @@ export default function DashboardPage() {
   const { state, logout } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
 
   useEffect(() => {
-    fetchTasks();
+    if (state.user?.id) {
+      fetchTasks();
+    }
   }, [state.user?.id]);
 
   useEffect(() => {
-    const handleTaskDeleted = () => fetchTasks();
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'taskDeleted') fetchTasks();
+      if (e.key === 'taskDeleted' && state.user?.id) {
+        fetchTasks();
+      }
     };
-    window.addEventListener('taskDeleted', handleTaskDeleted);
     window.addEventListener('storage', handleStorageChange);
     return () => {
-      window.removeEventListener('taskDeleted', handleTaskDeleted);
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [state.user?.id]);
 
   const fetchTasks = async () => {
+    if (!state.user?.id) {
+      console.error('User not authenticated');
+      return;
+    }
+
     try {
       setLoading(true);
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/${state.user?.id}/tasks?token=${token}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setTasks(data.slice(0, 5));
+
+      if (!token) {
+        throw new Error('Authentication token not found');
       }
+
+      // Use the tasksAPI to fetch tasks
+      const allTasks = await tasksAPI.getTasks(state.user.id, token);
+      // Only show first 5 tasks on dashboard
+      setTasks(allTasks.slice(0, 5));
     } catch (error) {
       console.error('Error fetching tasks:', error);
     } finally {
@@ -67,6 +83,7 @@ export default function DashboardPage() {
     completed
       ? 'bg-green-200 text-green-800'
       : 'bg-gray-200 text-gray-800';
+
 
   return (
     <ProtectedRoute>
@@ -208,6 +225,12 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Chat Interface */}
+        <NewChatInterface userId={state.user?.id || ''} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
+        {/* Chat Bot Icon */}
+        <NewChatBotIcon onClick={toggleChat} />
       </div>
     </ProtectedRoute>
   );

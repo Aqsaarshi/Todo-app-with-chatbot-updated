@@ -1,0 +1,9 @@
+Starting verification...
+Testing main app import...
+ERROR: attempted relative import with no known parent package
+Traceback (most recent call last):
+  File "E:\hackathon-2TODOphase3 - Copy\backend\verify_robust.py", line 17, in <module>
+    from main import app
+  File "E:\hackathon-2TODOphase3 - Copy\backend\src\main.py", line 4, in <module>
+    from .api import auth , tasks,chat
+ImportError: attempted relative import with no known parent package

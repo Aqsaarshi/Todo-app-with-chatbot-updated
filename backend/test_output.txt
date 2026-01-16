@@ -1,0 +1,26 @@
+Basic output test
+Chat module imported successfully
+Main app imported successfully
+
+Available routes:
+{'HEAD', 'GET'} /openapi.json
+{'HEAD', 'GET'} /docs
+{'HEAD', 'GET'} /docs/oauth2-redirect
+{'HEAD', 'GET'} /redoc
+{'GET'} /
+{'GET'} /health
+{'POST'} /api/auth/register
+{'POST'} /api/auth/login
+{'POST'} /api/auth/logout
+{'GET'} /api/{user_id}/tasks
+{'POST'} /api/{user_id}/tasks
+{'GET'} /api/{user_id}/tasks/{id}
+{'PUT'} /api/{user_id}/tasks/{id}
+{'DELETE'} /api/{user_id}/tasks/{id}
+{'PATCH'} /api/{user_id}/tasks/{id}/complete
+{'POST'} /api/{user_id}/chat
+{'GET'} /api/{user_id}/conversations
+{'GET'} /api/{user_id}/conversations/{conversation_id}/messages
+
+Checking for chat routes specifically...
+Found chat route: {'POST'} /api/{user_id}/chat
