@@ -143,78 +143,186 @@ export default function TaskDetailPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-8 flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-800">Task Details</h1>
+        <div className="container mx-auto px-4 py-16">
+          <div className="mb-10 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Task Details
+            </h1>
+            <p className="text-gray-600 mt-2 text-lg">
+              View and manage your task information
+            </p>
           </div>
 
-          <div className="bg-white shadow-md rounded-xl p-6">
-            <div className="flex items-start justify-between">
-              <h2 className={`text-2xl font-bold ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                {task.title}
-              </h2>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-green-100 text-green-800'
-              }`}>
-                {task.priority}
-              </span>
-            </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-10 border border-gray-200/50 transform hover:scale-[1.01] transition-transform duration-300">
+              <div className="flex flex-col lg:flex-row justify-between items-start gap-6 mb-8">
+                <div className="flex-1">
+                  <h2 className={`text-3xl font-bold mb-4 ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                    {task.title}
+                  </h2>
 
-            {task.description && (
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-gray-700">Description</h3>
-                <p className="text-gray-600 mt-1">{task.description}</p>
-              </div>
-            )}
-
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                <p className={`mt-1 ${task.completed ? 'text-green-600' : 'text-yellow-600'}`}>
-                  {task.completed ? 'Completed' : 'Pending'}
-                </p>
-              </div>
-
-              {task.due_date && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Due Date</h3>
-                  <p className="mt-1 text-gray-900">
-                    {new Date(task.due_date).toLocaleDateString()}
-                  </p>
+                  {task.description && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                        Description
+                      </h3>
+                      <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <p className="text-gray-700 leading-relaxed">{task.description}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
 
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Created</h3>
-                <p className="mt-1 text-gray-900">{new Date(task.created_at).toLocaleString()}</p>
+                <div className="flex flex-col items-end gap-4">
+                  <span className={`px-4 py-2 rounded-2xl text-sm font-bold shadow-lg ${
+                    task.priority === 'high' ? 'bg-gradient-to-r from-red-100 to-red-200 text-red-800' :
+                    task.priority === 'medium' ? 'bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800' :
+                    'bg-gradient-to-r from-green-100 to-green-200 text-green-800'
+                  }`}>
+                    {task.priority.toUpperCase()} PRIORITY
+                  </span>
+
+                  <div className={`px-4 py-2 rounded-2xl text-sm font-bold shadow-lg ${
+                    task.completed ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800' : 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800'
+                  }`}>
+                    {task.completed ? '✓ COMPLETED' : '⏳ PENDING'}
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Last Updated</h3>
-                <p className="mt-1 text-gray-900">{new Date(task.updated_at).toLocaleString()}</p>
-              </div>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100/50">
+                  <h3 className="text-sm font-semibold text-blue-700 mb-3 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Status Information
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Current Status:</span>
+                      <span className={`font-semibold ${task.completed ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {task.completed ? 'Completed' : 'Pending'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Priority Level:</span>
+                      <span className={`font-semibold ${
+                        task.priority === 'high' ? 'text-red-600' :
+                        task.priority === 'medium' ? 'text-yellow-600' :
+                        'text-green-600'
+                      }`}>
+                        {task.priority.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="mt-8 flex flex-wrap gap-4">
-              <a href={`/tasks/edit/${task.id}`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Edit Task
-              </a>
-              <button onClick={toggleTaskCompletion} className={`${task.completed ? 'bg-yellow-500 hover:bg-yellow-700' : 'bg-green-500 hover:bg-green-700'} text-white font-bold py-2 px-4 rounded`}>
-                {task.completed ? 'Mark Incomplete' : 'Mark Complete'}
-              </button>
-              <button onClick={deleteTask} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Delete Task
-              </button>
-              <a href="/tasks" className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                Back to Tasks
-              </a>
-              <a href="/dashboard" className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                Back to Dashboard
-              </a>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-100/50">
+                  <h3 className="text-sm font-semibold text-purple-700 mb-3 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Timeline
+                  </h3>
+                  <div className="space-y-2">
+                    {task.due_date && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Due Date:</span>
+                        <span className="font-semibold text-purple-600">
+                          {new Date(task.due_date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Created:</span>
+                      <span className="font-semibold text-purple-600">
+                        {new Date(task.created_at).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Last Updated:</span>
+                      <span className="font-semibold text-purple-600">
+                        {new Date(task.updated_at).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4">
+                <a href={`/tasks/edit/${task.id}`} className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl group relative overflow-hidden flex items-center gap-2">
+                  <span className="absolute inset-0 bg-white/20 transform scale-0 group-hover:scale-100 transition-transform duration-500"></span>
+                  <span className="relative flex items-center gap-2 group-hover:gap-3 transition-all duration-300">
+                    <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit Task
+                  </span>
+                </a>
+
+                <button onClick={toggleTaskCompletion} className={`bg-gradient-to-r ${
+                  task.completed ? 'from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700' : 'from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                } text-white font-bold py-3 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl group relative overflow-hidden flex items-center gap-2`}>
+                  <span className="absolute inset-0 bg-white/20 transform scale-0 group-hover:scale-100 transition-transform duration-500"></span>
+                  <span className="relative flex items-center gap-2 group-hover:gap-3 transition-all duration-300">
+                    <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {task.completed ? 'Mark Incomplete' : 'Mark Complete'}
+                  </span>
+                </button>
+
+                <button onClick={deleteTask} className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold py-3 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl group relative overflow-hidden flex items-center gap-2">
+                  <span className="absolute inset-0 bg-white/20 transform scale-0 group-hover:scale-100 transition-transform duration-500"></span>
+                  <span className="relative flex items-center gap-2 group-hover:gap-3 transition-all duration-300">
+                    <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete Task
+                  </span>
+                </button>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4 mt-6">
+                <a href="/tasks" className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-medium py-2.5 px-6 rounded-xl shadow-md transition-all duration-300 transform hover:scale-105 group relative overflow-hidden flex items-center gap-2">
+                  <span className="absolute inset-0 bg-white/20 transform scale-0 group-hover:scale-100 transition-transform duration-500"></span>
+                  <span className="relative flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    All Tasks
+                  </span>
+                </a>
+
+                <a href="/dashboard" className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-medium py-2.5 px-6 rounded-xl shadow-md transition-all duration-300 transform hover:scale-105 group relative overflow-hidden flex items-center gap-2">
+                  <span className="absolute inset-0 bg-white/20 transform scale-0 group-hover:scale-100 transition-transform duration-500"></span>
+                  <span className="relative flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
+                    </svg>
+                    Dashboard
+                  </span>
+                </a>
+              </div>
             </div>
           </div>
         </div>

@@ -18,7 +18,9 @@
       "Bash(powershell \"Remove-Item -Recurse -Force -Path ''.next'' -ErrorAction SilentlyContinue\")",
       "Bash(npm run dev)",
       "Bash(powershell \"Get-Content ''C:\\\\Users\\\\A7101~1.ZEE\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--hackathon-2TODO\\\\tasks\\\\ba719eb.output''\")",
-      "Bash(powershell \"Get-ChildItem -Path frontend\\\\src\\\\components -Recurse\")"
+      "Bash(powershell \"Get-ChildItem -Path frontend\\\\src\\\\components -Recurse\")",
+      "Bash(npm install --verbose)",
+      "Bash(python -m venv venv)"
     ]
   }
 }

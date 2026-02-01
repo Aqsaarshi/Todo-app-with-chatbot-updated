@@ -85,17 +85,52 @@ class ApiClient {
           throw new Error('Authentication token not found');
         }
 
-        const response = await this.client.post<ChatResponse>(
-          `/api/${userId}/chat?token=${encodeURIComponent(token)}`,
-          {
-            message,
-            conversation_id: conversationId,
-          } as MessageData
-        );
-        return response.data;
+        // Add a small delay to prevent rapid consecutive requests
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Retry mechanism with exponential backoff
+        let retries = 3;
+        let lastError: any;
+
+        while (retries > 0) {
+          try {
+            const response = await this.client.post<ChatResponse>(
+              `/api/${userId}/chat?token=${encodeURIComponent(token)}`,
+              {
+                message,
+                conversation_id: conversationId,
+              } as MessageData,
+              {
+                timeout: 30000, // 30 seconds timeout
+              }
+            );
+            return response.data;
+          } catch (error) {
+            lastError = error;
+            retries--;
+
+            if (retries > 0) {
+              // Exponential backoff: wait 1s, 2s, 4s between retries
+              const delay = Math.pow(2, 3 - retries) * 1000;
+              console.log(`Request failed, retrying in ${delay}ms... (${retries} attempts left)`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+          }
+        }
+
+        // If all retries exhausted, throw the last error
+        throw lastError;
       }
     } catch (error) {
       console.error(`Error sending message for user ${userId}:`, error);
+
+      // Check if it's a timeout error
+      if (axios.isCancel(error)) {
+        throw new Error('Request timed out. Please try again.');
+      } else if (error instanceof Error && error.message.includes('timeout')) {
+        throw new Error('Request timed out. Please try again.');
+      }
+
       throw error;
     }
   }
@@ -115,19 +150,31 @@ class ApiClient {
           throw new Error('Authentication token not found');
         }
 
+        // Add a small delay to prevent rapid consecutive requests
+        await new Promise(resolve => setTimeout(resolve, 50));
+
         const response = await this.client.get<ConversationsResponse>(
           `/api/${userId}/conversations?token=${encodeURIComponent(token)}`,
           {
             params: {
               limit,
               offset
-            }
+            },
+            timeout: 30000, // Increased timeout to 30 seconds
           }
         );
         return response.data;
       }
     } catch (error) {
       console.error(`Error getting conversations for user ${userId}:`, error);
+
+      // Check if it's a timeout error
+      if (axios.isCancel(error)) {
+        throw new Error('Request timed out. Please try again.');
+      } else if (error instanceof Error && error.message.includes('timeout')) {
+        throw new Error('Request timed out. Please try again.');
+      }
+
       throw error;
     }
   }
@@ -153,18 +200,30 @@ class ApiClient {
         throw new Error('Authentication token not found');
       }
 
+      // Add a small delay to prevent rapid consecutive requests
+      await new Promise(resolve => setTimeout(resolve, 50));
+
       const response = await this.client.get<MessagesResponse>(
         `/api/${userId}/conversations/${conversationId}/messages?token=${encodeURIComponent(token)}`,
         {
           params: {
             limit,
             offset
-          }
+          },
+          timeout: 30000, // Increased timeout to 30 seconds
         }
       );
       return response.data;
     } catch (error) {
       console.error(`Error getting messages for conversation ${conversationId} for user ${userId}:`, error);
+
+      // Check if it's a timeout error
+      if (axios.isCancel(error)) {
+        throw new Error('Request timed out. Please try again.');
+      } else if (error instanceof Error && error.message.includes('timeout')) {
+        throw new Error('Request timed out. Please try again.');
+      }
+
       throw error;
     }
   }

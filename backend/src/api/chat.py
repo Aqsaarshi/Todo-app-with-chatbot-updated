@@ -155,8 +155,17 @@ async def chat(
     # Use a consistent variable name
     conversation_obj = None
     if conversation_id:
+        # Convert conversation_id to int if it's a string
+        try:
+            conversation_id_int = int(conversation_id)
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid conversation ID format"
+            )
+
         # Try to get existing conversation
-        conversation_obj = await db_session.get(Conversation, conversation_id)
+        conversation_obj = await db_session.get(Conversation, conversation_id_int)
         if not conversation_obj or conversation_obj.user_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -260,8 +269,14 @@ async def chat(
 
         # Get response from Cohere
         print(f"Sending prompt to Cohere service: {len(full_prompt)} characters")
-        cohere_response = cohere_service.generate_response(full_prompt)
-        print(f"Cohere response received: {cohere_response[:100]}...")
+        try:
+            cohere_response = cohere_service.generate_response(full_prompt)
+            print(f"Cohere response received: {cohere_response[:100]}...")
+        except Exception as e:
+            print(f"Cohere service error: {str(e)}")
+            # Fallback to rule-based processing if Cohere is unavailable
+            cohere_response = f"Current user message: {user_message}"
+            print(f"Using fallback rule-based processing with user message: {user_message}")
 
         # Parse the response to determine action
         action = "reply"
@@ -317,137 +332,117 @@ async def chat(
             params = {}
             print("No proper ACTION/PARAMETERS format found in response, treating as reply")
 
-        # If action is still reply, try to infer from user message using rule-based approach
+        # If action is still reply, try to infer from user message using simple rule-based approach
         if action == "reply":
             print(f"Attempting to infer action from user message: {user_message}")
             import re
 
-            # Rule-based command processing
+            # Simple and effective command detection
             message_lower = user_message.lower().strip()
 
-            # Add task command - supports various ways to add a task
-            add_task_patterns = [
-                r'(add|create|make|new)\s+(a\s+)?task\s+(.+)',
-                r'(add|create|make|new)\s+(.+)\s+(as\s+)?a\s+task',
-                r'(add|create|make|new)\s+(.+)',
-                r'(.+)\s+(please|pls|now|today)'
-            ]
+            # Determine action based on the first word/command
+            if message_lower.startswith('list') or 'list task' in message_lower or message_lower.startswith('show'):
+                action = "list_tasks"
+                params = {}
+                print(f"Rule-based inference: {action}")
 
-            for pattern in add_task_patterns:
-                match = re.search(pattern, message_lower)
+            elif message_lower.startswith('complete') or message_lower.startswith('finish') or message_lower.startswith('done'):
+                # Extract task ID - look for number or UUID after command
+                # More flexible pattern to catch both numeric IDs and UUIDs
+                match = re.search(r'(complete|finish|done)\s+(task\s+|#)?([a-f0-9\-]+)', message_lower)
                 if match:
-                    # For the first three patterns, the task title is in group 3 or 2
-                    if pattern in [add_task_patterns[0], add_task_patterns[1]]:
-                        task_title = match.group(3).strip() if match.group(3) else ""
-                    elif pattern == add_task_patterns[2]:
-                        task_title = match.group(2).strip() if match.group(2) else ""
-                    else:  # Last pattern - take the whole matched group
-                        task_title = match.group(1).strip() if match.group(1) else ""
+                    task_id = match.group(3)
+                    action = "complete_task"
+                    params = {"task_id": task_id}
+                    print(f"Rule-based inference: {action} with params: {params}")
+                else:
+                    # Try to extract the ID in other ways
+                    parts = message_lower.split()
+                    for i, part in enumerate(parts):
+                        if part in ['task', '#'] and i + 1 < len(parts):
+                            # Next part after 'task' or '#' is the ID
+                            task_id = parts[i + 1]
+                            # Clean up the ID
+                            task_id = re.sub(r'[^\w\-]', '', task_id)
+                            if task_id:
+                                action = "complete_task"
+                                params = {"task_id": task_id}
+                                print(f"Rule-based inference: {action} with params: {params}")
+                                break
+                        elif i > 0 and part.replace('-', '').isdigit():  # Check if it's numeric
+                            # Previous part was likely 'complete', so this is the ID
+                            task_id = part
+                            action = "complete_task"
+                            params = {"task_id": task_id}
+                            print(f"Rule-based inference: {action} with params: {params}")
+                            break
 
-                    # Only proceed if we have a meaningful task title
-                    if task_title and not task_title.startswith(('please', 'pls')):
+            elif message_lower.startswith('update') or message_lower.startswith('edit'):
+                # Look for "update task X to Y" pattern with more flexibility
+                match = re.search(r'(update|edit)\s+(task\s+|#)?([a-f0-9\-]+)\s+(to|as|with)\s+(.+)', message_lower)
+                if match:
+                    task_id = match.group(3)
+                    new_title = match.group(4)
+                    action = "update_task"
+                    params = {"task_id": task_id, "title": new_title}
+                    print(f"Rule-based inference: {action} with params: {params}")
+                else:
+                    # Alternative pattern: "update task X Y" (without 'to')
+                    match = re.search(r'(update|edit)\s+(task\s+|#)?([a-f0-9\-]+)\s+(.+)', message_lower)
+                    if match:
+                        task_id = match.group(3)
+                        new_title = match.group(4)
+                        action = "update_task"
+                        params = {"task_id": task_id, "title": new_title}
+                        print(f"Rule-based inference: {action} with params: {params}")
+
+            elif message_lower.startswith('delete') or message_lower.startswith('remove'):
+                # Extract task ID for delete with more flexibility
+                match = re.search(r'(delete|remove)\s+(task\s+|#)?([a-f0-9\-]+)', message_lower)
+                if match:
+                    task_id = match.group(3)
+                    action = "delete_task"
+                    params = {"task_id": task_id}
+                    print(f"Rule-based inference: {action} with params: {params}")
+                else:
+                    # Try to extract the ID in other ways
+                    parts = message_lower.split()
+                    for i, part in enumerate(parts):
+                        if part in ['task', '#'] and i + 1 < len(parts):
+                            # Next part after 'task' or '#' is the ID
+                            task_id = parts[i + 1]
+                            # Clean up the ID
+                            task_id = re.sub(r'[^\w\-]', '', task_id)
+                            if task_id:
+                                action = "delete_task"
+                                params = {"task_id": task_id}
+                                print(f"Rule-based inference: {action} with params: {params}")
+                                break
+                        elif i > 0 and part.replace('-', '').isdigit():  # Check if it's numeric
+                            # Previous part was likely 'delete', so this is the ID
+                            task_id = part
+                            action = "delete_task"
+                            params = {"task_id": task_id}
+                            print(f"Rule-based inference: {action} with params: {params}")
+                            break
+
+            elif message_lower.startswith('add') or message_lower.startswith('create'):
+                # Extract task title after 'add'/'create' command
+                match = re.search(r'(add|create)\s+(a\s+)?(task\s+|#)?(.+)', message_lower)
+                if match:
+                    task_title = match.group(4).strip()
+                    # Clean up the title (remove trailing punctuation)
+                    task_title = re.sub(r'[^\w\s\-_]', '', task_title).strip()
+                    if task_title:
                         action = "add_task"
                         params = {"title": task_title}
                         print(f"Rule-based inference: {action} with params: {params}")
-                        break
 
-            # List tasks command - supports various ways to list tasks
-            if action == "reply":
-                list_patterns = [
-                    r'(list|show|display|view|see|get)\s+(my\s+)?(all\s+)?tasks?',
-                    r'what\s+(are|is)\s+(my|the)\s+(current\s+)?tasks?',
-                    r'do\s+i\s+have\s+any\s+tasks?'
-                    # Removed the overly broad '(my\s+)?tasks?(\?)?' pattern to avoid conflicts
-                ]
-
-                for pattern in list_patterns:
-                    if re.search(pattern, message_lower):
-                        action = "list_tasks"
-                        params = {}
-                        print(f"Rule-based inference: {action}")
-                        break
-
-            # Complete task command - supports various ways to complete a task
-            if action == "reply":
-                complete_patterns = [
-                    r'(complete|finish|done|mark.*as.*done|mark.*as.*completed)\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)',
-                    r'mark\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)\s+(as\s+)?(complete|done|finished)',
-                    r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)\s+(is\s+)?(complete|done|finished)'
-                ]
-
-                for pattern in complete_patterns:
-                    match = re.search(pattern, message_lower)
-                    if match:
-                        # Extract task ID (it could be in different groups depending on the pattern)
-                        # Look for UUID or numeric ID in the captured groups
-                        task_id_str = next((g for g in match.groups() if g and (g.replace('-', '').isdigit() or
-                               re.match(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$', g))), None)
-                        if task_id_str:
-                            action = "complete_task"
-                            params = {"task_id": task_id_str}
-                            print(f"Rule-based inference: {action} with params: {params}")
-                            break
-
-            # Update/edit task command - supports various ways to update a task
-            if action == "reply":
-                update_patterns = [
-                    r'(update|edit|change|modify|rename)\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)\s+(to|as|with)\s+(.+)',
-                    r'(update|edit|change|modify|rename)\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+):\s*(.+)',
-                    r'(update|edit|change|modify|rename)\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)\s+(.+)'
-                ]
-
-                for pattern in update_patterns:
-                    match = re.search(pattern, message_lower)
-                    if match:
-                        # Extract task ID and new title
-                        # Find the UUID or numeric ID in the matched groups
-                        task_id = None
-                        new_title = None
-
-                        # Look for the task ID (UUID or numeric) in the match groups
-                        for group in match.groups():
-                            if group and (group.isdigit() or
-                                          re.match(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$', group)):
-                                task_id = group
-                                break
-
-                        # Look for the new title (the text part after the ID)
-                        # Find the last group which should be the title/text
-                        for i in range(len(match.groups()) - 1, -1, -1):
-                            group = match.groups()[i]
-                            if group and group not in ['to', 'as', 'with', 'task', '#', 'update', 'edit', 'change', 'modify', 'rename']:
-                                # Check if this isn't the task ID
-                                if not (group.isdigit() or
-                                        re.match(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$', group)):
-                                    new_title = group.strip()
-                                    break
-
-                        if task_id and new_title:
-                            action = "update_task"
-                            params = {"task_id": task_id, "title": new_title}
-                            print(f"Rule-based inference: {action} with params: {params}")
-                            break
-
-            # Delete/remove task command - supports various ways to delete a task
-            if action == "reply":
-                delete_patterns = [
-                    r'(delete|remove|erase|cancel)\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)',
-                    r'remove\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)\s+(please|pls|now)?',
-                    r'(delete|remove|erase|cancel)\s+(this|the)\s+(task\s+|#)?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|\d+)'
-                ]
-
-                for pattern in delete_patterns:
-                    match = re.search(pattern, message_lower)
-                    if match:
-                        # Extract task ID (UUID or numeric)
-                        task_id_str = next((g for g in match.groups() if g and
-                                           (g.isdigit() or
-                                            re.match(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$', g))), None)
-                        if task_id_str:
-                            action = "delete_task"
-                            params = {"task_id": task_id_str}
-                            print(f"Rule-based inference: {action} with params: {params}")
-                            break
+            else:
+                # Default to reply if no command is recognized
+                action = "reply"
+                params = {}
+                print(f"Defaulting to reply action")
 
         # Execute the appropriate action with validation
         tool_calls = []
@@ -565,30 +560,49 @@ async def chat(
                         detail="Task ID is required to update a task"
                     )
 
+                if not params.get("title"):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Title is required to update a task"
+                    )
+
                 # The task_id can be either a UUID string or a numeric ID
                 # Pass the task_id as a string to the MCP tools which will handle validation
                 task_id = params.get("task_id")
+                title = params.get("title")
 
-                result = await mcp_tools.update_task(
-                    user_id=user_id,
-                    task_id=task_id,
-                    title=params.get("title"),
-                    description=params.get("description")
-                )
-                response_text = f"I've updated the task to '{result['title']}'."
-                tool_calls.append({
-                    "tool_name": "update_task",
-                    "parameters": params,
-                    "result": result
-                })
-                # Log the tool execution
-                log_tool_execution(
-                    user_id=user_id,
-                    conversation_id=current_conversation_id,
-                    tool_name="update_task",
-                    parameters=params,
-                    result=result
-                )
+                try:
+                    result = await mcp_tools.update_task(
+                        user_id=user_id,
+                        task_id=task_id,
+                        title=title,
+                        description=params.get("description")
+                    )
+                    response_text = f"I've updated the task to '{result['title']}'."
+                    tool_calls.append({
+                        "tool_name": "update_task",
+                        "parameters": params,
+                        "result": result
+                    })
+                    # Log the tool execution
+                    log_tool_execution(
+                        user_id=user_id,
+                        conversation_id=current_conversation_id,
+                        tool_name="update_task",
+                        parameters=params,
+                        result=result
+                    )
+                except Exception as e:
+                    print(f"Error updating task {task_id}: {str(e)}")
+                    response_text = f"Sorry, I couldn't update the task. The task with ID '{task_id}' might not exist."
+                    # Still log the attempt
+                    log_tool_execution(
+                        user_id=user_id,
+                        conversation_id=current_conversation_id,
+                        tool_name="update_task",
+                        parameters=params,
+                        result={"error": str(e)}
+                    )
             elif action == "delete_task":
                 # Validate required parameters
                 if not params.get("task_id"):
@@ -638,41 +652,41 @@ async def chat(
             content=response_text
         )
         db_session.add(assistant_msg)
-        await db_session.commit()
-        await db_session.refresh(assistant_msg)
+        await db_session.flush()  # Use flush instead of commit to avoid session conflicts
 
-        # Save tool calls if any (in a separate transaction to avoid affecting main response)
+        # Save tool calls if any (in the same session to avoid conflicts)
         if tool_calls:
             try:
-                # Create a separate session for tool calls to isolate any errors
-                from ..database import get_session
-                async with get_session() as tool_session:
-                    for tool_call_data in tool_calls:
-                        # Convert UUIDs to strings for JSON serialization
-                        import uuid
-                        def convert_uuids(obj):
-                            if isinstance(obj, uuid.UUID):
-                                return str(obj)
-                            elif isinstance(obj, dict):
-                                return {key: convert_uuids(value) for key, value in obj.items()}
-                            elif isinstance(obj, list):
-                                return [convert_uuids(item) for item in obj]
-                            return obj
+                for tool_call_data in tool_calls:
+                    # Convert UUIDs to strings for JSON serialization
+                    import uuid
+                    def convert_uuids(obj):
+                        if isinstance(obj, uuid.UUID):
+                            return str(obj)
+                        elif isinstance(obj, dict):
+                            return {key: convert_uuids(value) for key, value in obj.items()}
+                        elif isinstance(obj, list):
+                            return [convert_uuids(item) for item in obj]
+                        return obj
 
-                        tool_call = ToolCall(
-                            message_id=assistant_msg.id,
-                            tool_name=tool_call_data["tool_name"],
-                            parameters=convert_uuids(tool_call_data["parameters"]),
-                            result=convert_uuids(tool_call_data["result"])
-                        )
-                        tool_session.add(tool_call)
+                    tool_call = ToolCall(
+                        message_id=assistant_msg.id,
+                        tool_name=tool_call_data["tool_name"],
+                        parameters=convert_uuids(tool_call_data["parameters"]),
+                        result=convert_uuids(tool_call_data["result"])
+                    )
+                    db_session.add(tool_call)
 
-                    await tool_session.commit()
             except Exception as e:
                 # If tool call saving fails, log the error but don't fail the main request
                 print(f"Error saving tool call: {e}")
+                from ..utils.logging import log_error
                 log_error(e, f"Failed to save tool call for message {assistant_msg.id}")
                 # Continue with the main request anyway
+
+        # Final commit for all changes
+        await db_session.commit()
+        await db_session.refresh(assistant_msg)
 
         # Log the chat interaction
         log_chat_interaction(
@@ -684,38 +698,63 @@ async def chat(
         )
 
         # Return response
-        return {
+        response_data = {
             "conversation_id": current_conversation_id,
             "response": response_text,
             "tool_calls": tool_calls,
             "timestamp": datetime.utcnow().isoformat()
         }
+
+        # Ensure response is properly formatted JSON
+        print(f"Returning response for conversation {current_conversation_id}: {response_data}")
+
+        return response_data
     except HTTPException:
         # Re-raise HTTP exceptions as they are already properly formatted
         raise
     except Exception as e:
         # Log the full traceback for debugging
         error_details = traceback.format_exc()
+        from ..utils.logging import log_error
         log_error(e, f"Unexpected error in chat endpoint: {error_details}")
+
+        # Ensure we have a conversation ID to return
+        if 'current_conversation_id' not in locals() and conversation_id:
+            current_conversation_id = conversation_id
+        elif 'current_conversation_id' not in locals():
+            # Create a new conversation if needed
+            conversation_obj = Conversation(user_id=user_id)
+            db_session.add(conversation_obj)
+            await db_session.commit()
+            await db_session.refresh(conversation_obj)
+            current_conversation_id = conversation_obj.id
 
         # Handle any errors in the AI processing
         error_msg = "Sorry, I encountered an error processing your request. Please try again."
-        assistant_msg = Message(
-            conversation_id=current_conversation_id,
-            sender_type="assistant",
-            content=error_msg
-        )
-        db_session.add(assistant_msg)
-        await db_session.commit()
+
+        try:
+            assistant_msg = Message(
+                conversation_id=current_conversation_id,
+                sender_type="assistant",
+                content=error_msg
+            )
+            db_session.add(assistant_msg)
+            await db_session.commit()
+            await db_session.refresh(assistant_msg)
+        except Exception as db_error:
+            print(f"Error saving error message to DB: {db_error}")
 
         # Log the error interaction
-        log_chat_interaction(
-            user_id=user_id,
-            conversation_id=current_conversation_id,
-            user_message=user_message,
-            assistant_response=error_msg,
-            tool_calls=[]
-        )
+        try:
+            log_chat_interaction(
+                user_id=user_id,
+                conversation_id=current_conversation_id,
+                user_message=user_message,
+                assistant_response=error_msg,
+                tool_calls=[]
+            )
+        except Exception as log_error:
+            print(f"Error logging chat interaction: {log_error}")
 
         return {
             "conversation_id": current_conversation_id,

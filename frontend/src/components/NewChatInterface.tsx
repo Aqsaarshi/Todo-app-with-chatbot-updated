@@ -49,6 +49,7 @@ const NewChatInterface: React.FC<NewChatInterfaceProps> = ({ userId, isOpen, onC
       setConversations(response.conversations);
     } catch (error) {
       console.error('Error loading conversations:', error);
+      // Don't show error in UI as it might be distracting, but log it
     }
   };
 
@@ -60,15 +61,8 @@ const NewChatInterface: React.FC<NewChatInterfaceProps> = ({ userId, isOpen, onC
       setMessages(response.messages);
     } catch (error) {
       console.error('Error loading conversation history:', error);
-      // Show error message in the chat
-      setMessages([
-        {
-          id: 1,
-          sender_type: 'assistant',
-          content: 'Sorry, I encountered an error loading the conversation history. Please try again.',
-          timestamp: new Date().toISOString(),
-        }
-      ]);
+      // Don't show error message in UI as it can be disruptive during normal operations
+      // Just log the error for debugging
     }
   };
 
@@ -85,7 +79,7 @@ const NewChatInterface: React.FC<NewChatInterfaceProps> = ({ userId, isOpen, onC
 
     // Add user message to the chat
     const userMessage: Message = {
-      id: messages.length + 1,
+      id: Date.now(), // Use timestamp for unique ID
       sender_type: 'user',
       content: inputValue,
       timestamp: new Date().toISOString(),
@@ -100,29 +94,39 @@ const NewChatInterface: React.FC<NewChatInterfaceProps> = ({ userId, isOpen, onC
       const response: ChatResponse = await apiClient.sendMessage(userId, inputValue, currentConversationId ? currentConversationId.toString() : undefined);
 
       // Update conversation ID if this is a new conversation
-      if (!currentConversationId) {
+      if (!currentConversationId && response.conversation_id) {
         setCurrentConversationId(response.conversation_id);
       }
 
       // Add assistant response to the chat
       const assistantMessage: Message = {
-        id: messages.length + 2,
+        id: Date.now() + 1, // Use timestamp for unique ID (slightly offset to ensure uniqueness)
         sender_type: 'assistant',
         content: response.response,
         timestamp: response.timestamp,
         tool_calls: response.tool_calls
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      // Update messages with both user and assistant messages
+      setMessages(prev => [...prev.slice(0, -1), userMessage, assistantMessage]);
+
+      // Force a refresh of the conversation history to ensure state sync
+      if (response.conversation_id) {
+        // Wait a bit for the backend to process and store the messages
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // Don't await loadConversationHistory to avoid blocking the UI
+        loadConversationHistory().catch(err => console.error('Error reloading conversation:', err));
+      }
+
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
-        id: messages.length + 2,
+        id: Date.now() + 1, // Use timestamp for unique ID
         sender_type: 'assistant',
         content: 'Sorry, I encountered an error processing your request. Please try again.',
         timestamp: new Date().toISOString(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev.slice(0, -1), errorMessage]); // Replace user message with error message
     } finally {
       setIsLoading(false);
     }

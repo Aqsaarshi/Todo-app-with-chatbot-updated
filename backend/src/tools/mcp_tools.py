@@ -248,7 +248,7 @@ class MCPTaskTools:
 
         Args:
             user_id: ID of the user
-            task_id: ID of the task to complete (UUID string)
+            task_id: ID of the task to complete (UUID string or numeric ID)
             context_data: Optional context data to store with the operation
 
         Returns:
@@ -257,21 +257,33 @@ class MCPTaskTools:
         try:
             from uuid import UUID
 
-            # Validate task_id is a valid UUID string
+            # Try to parse as UUID first, if that fails, try as integer
+            uuid_obj = None
+            task = None
+
+            # First, try to parse as UUID
             try:
                 uuid_obj = UUID(task_id)
+                task = await self.db_session.get(TaskModel, uuid_obj)
             except ValueError:
-                raise ValueError(f"Invalid task ID format: {task_id}. Expected a valid UUID.")
-
-            # Find the task using the UUID
-            task = await self.db_session.get(TaskModel, uuid_obj)
+                # If not a UUID, try as integer
+                try:
+                    numeric_id = int(task_id)
+                    # Query by the numeric ID in the database
+                    statement = select(TaskModel).where(TaskModel.id == numeric_id, TaskModel.user_id == user_id)
+                    result_query = await self.db_session.exec(statement)
+                    task = result_query.first()
+                except ValueError:
+                    raise ValueError(f"Invalid task ID format: {task_id}. Expected a valid UUID or numeric ID.")
 
             # Check if task exists
             if not task:
                 raise ValueError(f"Task with ID {task_id} not found")
 
             # Verify the task belongs to the user
-            self._verify_user_owns_task(task, user_id, str(uuid_obj))
+            task_user_id_str = str(task.user_id)  # Convert UUID to string for comparison
+            if task_user_id_str != user_id:
+                raise ValueError(f"Task {task_id} does not belong to user {user_id}")
 
             # Update completed status
             task.completed = True
@@ -290,7 +302,7 @@ class MCPTaskTools:
                 "completed": task.completed,
                 "title": task.title
             }
-            parameters = {"task_id": str(uuid_obj), "context_data": context_data}
+            parameters = {"task_id": str(task.id), "context_data": context_data}
 
             return self._execute_tool_and_log("complete_task", user_id, result, parameters)
         except ValueError as ve:
@@ -313,7 +325,7 @@ class MCPTaskTools:
 
         Args:
             user_id: ID of the user
-            task_id: ID of the task to update (UUID string)
+            task_id: ID of the task to update (UUID string or numeric ID)
             title: Optional new title
             description: Optional new description
             context_data: Optional context data to store with the operation
@@ -324,11 +336,24 @@ class MCPTaskTools:
         try:
             from uuid import UUID
 
-            # Validate task_id is a valid UUID string
+            # Try to parse as UUID first, if that fails, try as integer
+            uuid_obj = None
+            task = None
+
+            # First, try to parse as UUID
             try:
                 uuid_obj = UUID(task_id)
+                task = await self.db_session.get(TaskModel, uuid_obj)
             except ValueError:
-                raise ValueError(f"Invalid task ID format: {task_id}. Expected a valid UUID.")
+                # If not a UUID, try as integer
+                try:
+                    numeric_id = int(task_id)
+                    # Query by the numeric ID in the database
+                    statement = select(TaskModel).where(TaskModel.id == numeric_id, TaskModel.user_id == user_id)
+                    result_query = await self.db_session.exec(statement)
+                    task = result_query.first()
+                except ValueError:
+                    raise ValueError(f"Invalid task ID format: {task_id}. Expected a valid UUID or numeric ID.")
 
             # Sanitize inputs to prevent injection attacks
             if title is not None:
@@ -339,15 +364,14 @@ class MCPTaskTools:
             # Validate inputs
             self._validate_task_params(title=title, description=description)
 
-            # Find the task using the UUID
-            task = await self.db_session.get(TaskModel, uuid_obj)
-
             # Check if task exists
             if not task:
                 raise ValueError(f"Task with ID {task_id} not found")
 
             # Verify the task belongs to the user
-            self._verify_user_owns_task(task, user_id, str(uuid_obj))
+            task_user_id_str = str(task.user_id)  # Convert UUID to string for comparison
+            if task_user_id_str != user_id:
+                raise ValueError(f"Task {task_id} does not belong to user {user_id}")
 
             # Update fields if provided
             if title is not None:
@@ -370,7 +394,7 @@ class MCPTaskTools:
                 "completed": task.completed,
                 "title": task.title
             }
-            parameters = {"task_id": str(uuid_obj), "title": title, "description": description, "context_data": context_data}
+            parameters = {"task_id": str(task.id), "title": title, "description": description, "context_data": context_data}
 
             return self._execute_tool_and_log("update_task", user_id, result, parameters)
         except ValueError as ve:
@@ -386,7 +410,7 @@ class MCPTaskTools:
 
         Args:
             user_id: ID of the user
-            task_id: ID of the task to delete (UUID string)
+            task_id: ID of the task to delete (UUID string or numeric ID)
             context_data: Optional context data to store with the operation
 
         Returns:
@@ -395,21 +419,33 @@ class MCPTaskTools:
         try:
             from uuid import UUID
 
-            # Validate task_id is a valid UUID string
+            # Try to parse as UUID first, if that fails, try as integer
+            uuid_obj = None
+            task = None
+
+            # First, try to parse as UUID
             try:
                 uuid_obj = UUID(task_id)
+                task = await self.db_session.get(TaskModel, uuid_obj)
             except ValueError:
-                raise ValueError(f"Invalid task ID format: {task_id}. Expected a valid UUID.")
-
-            # Find the task using the UUID
-            task = await self.db_session.get(TaskModel, uuid_obj)
+                # If not a UUID, try as integer
+                try:
+                    numeric_id = int(task_id)
+                    # Query by the numeric ID in the database
+                    statement = select(TaskModel).where(TaskModel.id == numeric_id, TaskModel.user_id == user_id)
+                    result_query = await self.db_session.exec(statement)
+                    task = result_query.first()
+                except ValueError:
+                    raise ValueError(f"Invalid task ID format: {task_id}. Expected a valid UUID or numeric ID.")
 
             # Check if task exists
             if not task:
                 raise ValueError(f"Task with ID {task_id} not found")
 
             # Verify the task belongs to the user
-            self._verify_user_owns_task(task, user_id, str(uuid_obj))
+            task_user_id_str = str(task.user_id)  # Convert UUID to string for comparison
+            if task_user_id_str != user_id:
+                raise ValueError(f"Task {task_id} does not belong to user {user_id}")
 
             # Delete the task
             await self.db_session.delete(task)
@@ -422,11 +458,11 @@ class MCPTaskTools:
             # Prepare result and parameters for logging
             # Convert UUID to string for JSON serialization
             result = {
-                "task_id": str(uuid_obj),
+                "task_id": str(task.id),
                 "status": "deleted",  # For delete operation, we can keep status as "deleted"
                 "title": task.title
             }
-            parameters = {"task_id": str(uuid_obj), "context_data": context_data}
+            parameters = {"task_id": str(task.id), "context_data": context_data}
 
             return self._execute_tool_and_log("delete_task", user_id, result, parameters)
         except ValueError as ve:
