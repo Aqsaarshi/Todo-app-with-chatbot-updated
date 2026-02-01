@@ -33,6 +33,7 @@ coverage/
 .env.production
 .env.staging
 .env.local.example
+.env.example
 .env.*.local
 
 # IDE
