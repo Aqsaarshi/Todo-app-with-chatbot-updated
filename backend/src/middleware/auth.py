@@ -16,7 +16,9 @@ security = HTTPBearer()
 
 
 # Get secret key and algorithm from environment variables
-SECRET_KEY = os.getenv("SECRET_KEY", "mypassword123")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable must be set")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from uuid import UUID
 
 # Test JWT token creation and validation
-SECRET_KEY = os.getenv("SECRET_KEY", "mypassword123")
+SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key_here")  # Only for testing - ensure proper secret is set in production
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 print("Testing JWT token functionality...")

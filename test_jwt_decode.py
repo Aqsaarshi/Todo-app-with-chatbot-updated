@@ -3,7 +3,7 @@ import os
 from uuid import UUID
 
 # Test JWT decoding
-SECRET_KEY = "mypassword123"  # Same as in the backend
+SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key_here")  # Only for testing - ensure proper secret is set in production
 ALGORITHM = "HS256"
 
 # Sample token from our test
