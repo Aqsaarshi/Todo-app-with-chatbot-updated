@@ -20,7 +20,17 @@
       "Bash(powershell \"Get-Content ''C:\\\\Users\\\\A7101~1.ZEE\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\E--hackathon-2TODO\\\\tasks\\\\ba719eb.output''\")",
       "Bash(powershell \"Get-ChildItem -Path frontend\\\\src\\\\components -Recurse\")",
       "Bash(npm install --verbose)",
-      "Bash(python -m venv venv)"
+      "Bash(python -m venv venv)",
+      "Bash(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
+      "Bash(dir \"specs/003-k8s-deployment/checklists/\" -PathType Container)",
+      "Bash(docker --version)",
+      "Bash(minikube start --driver=docker --cpus=4 --memory=8192)",
+      "Bash(minikube start --driver=docker --cpus=2 --memory=3072mb)",
+      "Bash(minikube start --driver=docker --cpus=2 --memory=2048mb --wait=all --timeout=10m)",
+      "Bash(docker-compose -f docker-compose.new-images-v2.yml up -d)",
+      "Bash(docker build -t todo-new-backend ./backend)",
+      "Bash(docker-compose -f docker-compose.new-images-v2.yml down)",
+      "Bash(docker exec:*)"
     ]
   }
 }

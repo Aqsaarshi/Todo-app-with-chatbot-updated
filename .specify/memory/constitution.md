@@ -1,9 +1,10 @@
 <!--
 Sync Impact Report:
-- Version change: 1.0.0 → 1.1.0
+- Version change: 1.1.0 → 1.2.0
 - Modified principles: API Contract Compliance (expanded to include chat endpoints), Database Management with SQLModel and Neon PostgreSQL (expanded to include conversation persistence)
 - Added principles: AI-Powered Natural Language Processing, MCP Tools Integration, Stateless Server Architecture
-- Added sections: AI Chatbot Technology Stack and Architecture Standards, Enhanced Development Workflow and Quality Standards
+- Added Infrastructure Principles: Containerization Standards, Kubernetes Orchestration Compliance, Helm Chart Governance, Local Deployment Validation
+- Added sections: AI Chatbot Technology Stack and Architecture Standards, Enhanced Development Workflow and Quality Standards, Infrastructure as Code Standards
 - Templates requiring updates: ✅ .specify/templates/plan-template.md, ✅ .specify/templates/spec-template.md, ✅ .specify/templates/tasks-template.md
 - Follow-up TODOs: None
 -->
@@ -38,13 +39,27 @@ Leverage MCP tools (add_task, list_tasks, complete_task, update_task, delete_tas
 ### Stateless Server Architecture
 Maintain stateless server design where every request is independent; No in-memory session data for conversations; Retrieve conversation history from database for each request
 
+## Infrastructure as Code Principles
+
+### Containerization Standards
+Each application component (frontend and backend) must be containerized with individual Dockerfiles; Use Docker Desktop for containerization with AI assistance from Docker AI Agent (Gordon) where available; Images must be built locally and tagged appropriately; Container images must follow security best practices with minimal base images and non-root users
+
+### Kubernetes Orchestration Compliance
+Deploy applications on local Kubernetes clusters using Minikube; Use kubectl-ai and kagent for AI-assisted Kubernetes operations; Ensure all deployments follow Kubernetes best practices including health checks, resource limits, and proper labeling; Applications must be designed for horizontal scaling and resilience
+
+### Helm Chart Governance
+Create and maintain Helm charts for all deployments following standard chart structure; Charts must define deployments, services, and replica configurations; Use Helm for deployment management rather than raw kubectl; Charts should be parameterized for different environments while maintaining consistency
+
+### Local Deployment Validation
+Validate deployment stability and basic scalability in local Minikube environment; Ensure all pods reach Running state consistently; Verify frontend accessibility and backend responsiveness; Test application survival during pod restart scenarios; Validate scaling operations functionality
+
 ## Technology Stack and Architecture Standards
-Use Next.js, TypeScript, and Tailwind CSS for frontend UI components; Use FastAPI for backend; Implement Better Auth for session management; Apply clean code principles for both frontend and backend; Integrate Cohere API for LLM processing; Implement MCP tools for task operations; Use environment variables for API keys (COHERE_API_KEY)
+Use Next.js, TypeScript, and Tailwind CSS for frontend UI components; Use FastAPI for backend; Implement Better Auth for session management; Apply clean code principles for both frontend and backend; Integrate Cohere API for LLM processing; Implement MCP tools for task operations; Use environment variables for API keys (COHERE_API_KEY); Containerize with Docker; Orchestrate with Kubernetes (Minikube); Package with Helm Charts; Use kubectl-ai and kagent for AI-assisted operations
 
 ## Development Workflow and Quality Standards
-Maintain coding standards and clean code principles; Use CLAUDE.md files to provide context at root, frontend, and backend levels; Update specs if requirements change and reference them correctly; Test and iterate on features, API endpoints, database queries, and AI interactions; Ensure proper error handling for AI API calls and tool executions
+Maintain coding standards and clean code principles; Use CLAUDE.md files to provide context at root, frontend, and backend levels; Update specs if requirements change and reference them correctly; Test and iterate on features, API endpoints, database queries, and AI interactions; Ensure proper error handling for AI API calls and tool executions; Follow containerization and deployment best practices; Validate infrastructure changes in local environment before considering production readiness
 
 ## Governance
-Reference this constitution whenever implementing or reviewing any AI chatbot feature, backend or frontend logic, database schema, authentication flow, integration task, or AI response handling; Ensure all agents and skills follow the same architecture, security standards, and project workflow; Maintain backward compatibility with existing task management features
+Reference this constitution whenever implementing or reviewing any AI chatbot feature, backend or frontend logic, database schema, authentication flow, integration task, AI response handling, containerization, orchestration, or deployment configuration; Ensure all agents and skills follow the same architecture, security standards, and project workflow; Maintain backward compatibility with existing task management features; Ensure infrastructure changes follow Spec-Driven Development principles
 
-**Version**: 1.1.0 | **Ratified**: 2025-12-27 | **Last Amended**: 2026-01-10
+**Version**: 1.2.0 | **Ratified**: 2025-12-27 | **Last Amended**: 2026-02-02

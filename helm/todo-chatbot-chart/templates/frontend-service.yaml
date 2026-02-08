@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "todo-chatbot-chart.fullname" . }}-frontend
+  labels:
+    app: {{ include "todo-chatbot-chart.name" . }}-frontend
+    chart: {{ include "todo-chatbot-chart.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ include "todo-chatbot-chart.name" . }}-frontend
+    release: {{ .Release.Name }}

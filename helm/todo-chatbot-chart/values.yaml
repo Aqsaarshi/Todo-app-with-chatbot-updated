@@ -1,0 +1,52 @@
+# Default values for todo-chatbot-chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: todo-frontend   # Updated image name
+    pullPolicy: IfNotPresent
+    tag: latest
+  service:
+    type: LoadBalancer
+    port: 3000
+  env:
+    NEXT_PUBLIC_API_URL: "http://todo-backend:8000"  # Updated backend name
+
+backend:
+  replicaCount: 1
+  image:
+    repository: todo-backend   # Updated image name
+    pullPolicy: IfNotPresent
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8000
+  env:
+    DATABASE_URL: "postgresql://neondb_owner:npg_5GCpdS8cTXiq@ep-plain-union-ahf9h4j9-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    COHERE_API_KEY: "b3k0rUeT8IgerBdA44oidt57zJiYbLB7OCihQqiN"
+    SECRET_KEY: "mypassword123"
+
+
+resources: {}
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube.
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: todo-chatbot.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
